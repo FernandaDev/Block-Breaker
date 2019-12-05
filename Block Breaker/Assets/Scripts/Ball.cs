@@ -2,16 +2,21 @@
 
 public class Ball : MonoBehaviour
 {
-    [SerializeField] Paddle paddle;
+    Paddle paddle;
     [SerializeField] Vector2 startVelocity;
 
     Vector2 paddleDistance;
     Rigidbody2D rb2D;
     bool hasStarted = false;
+    AudioSource audioSource;
+    [SerializeField] AudioClip[] ballSoundFXs;
+    [SerializeField] float randomFactor = 0.2f;
 
     private void Awake()
     {
+        paddle = FindObjectOfType<Paddle>();
         rb2D = GetComponent<Rigidbody2D>();
+        audioSource = GetComponent<AudioSource>();
     }
 
     void Start()
@@ -38,10 +43,30 @@ public class Ball : MonoBehaviour
 
     void LaunchBall()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (GameManager.instance.IsAutoPlayEnabled())
         {
             rb2D.velocity = startVelocity;
             hasStarted = true;
+        }
+        else
+        {
+            if (Input.GetMouseButtonDown(0))
+            {
+                rb2D.velocity = startVelocity;
+                hasStarted = true;
+            }
+        }
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        Vector2 velocityTweak = new Vector2(Random.Range(0,  randomFactor ), Random.Range(0, randomFactor));
+
+        if (hasStarted)
+        {
+            int randSound = Random.Range(0, ballSoundFXs.Length);
+            audioSource.PlayOneShot(ballSoundFXs[randSound]);
+            rb2D.velocity += velocityTweak;
         }
     }
 }

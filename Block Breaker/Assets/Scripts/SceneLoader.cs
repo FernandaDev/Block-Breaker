@@ -10,6 +10,7 @@ public class SceneLoader : MonoBehaviour
 
     public void LoadStartScene()
     {
+        GameManager.instance.gameStatus.RestartLevelStatus();
         SceneManager.LoadScene(0);
     }
 
